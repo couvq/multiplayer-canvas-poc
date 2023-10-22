@@ -1,20 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { socket } from "./socket";
 
 const App = () => {
-  const [users, setUsers] = useState([]);
-
   useEffect(() => {
-    fetch("/api")
-      .then((res) => res.json())
-      .then((data) => setUsers(data.users))
-      .catch((e) => console.error(e));
+    socket.connect();
+
+    return () => socket.disconnect();
   }, []);
+  const [message, setMessage] = useState("");
 
   return (
     <>
-      {users.map((user) => (
-        <p>{user}</p>
-      ))}
+      <input value={message} onChange={(e) => setMessage(e.target.value)} />
+      <button
+        onClick={() => {
+          console.log("sending message...");
+          socket.emit('message', message)
+        }}
+      >
+        Send message
+      </button>
     </>
   );
 };

@@ -1,8 +1,22 @@
 const express = require("express");
-const app = express();
+const { createServer } = require("http");
+const { Server } = require("socket.io");
 
-app.get("/api", (req, res) => {
-  res.json({ users: ["Quentin", "Richard"] });
+const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173",
+  },
 });
 
-app.listen(8080, () => console.log(`server started on port 8080...`))
+io.on("connection", (socket) => {
+  console.log(`user ${socket.id} connected...`);
+
+  socket.on('message', (message) => {
+    console.log(message)
+    io.emit('message', `${socket.id} said ${message}`)
+  })
+});
+
+httpServer.listen(8080);
